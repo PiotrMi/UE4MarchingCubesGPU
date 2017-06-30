@@ -1,0 +1,18 @@
+{
+    "FileVersion" : 1,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Marching Cubes Compute Shader",
+	"Description": "Marching Cubes Compute Shader",
+	"Category": "Rendering",
+	"CreatedBy": "runedegroot",
+	"CreatedByURL": "https://github.com/runedegroot",
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "MarchingCubesComputeShader",
+			"Type": "Runtime",
+			"LoadingPhase": "PostConfigInit"
+		}
+	]
+}
