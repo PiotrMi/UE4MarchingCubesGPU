@@ -75,3 +75,7 @@ Intermediate/*
 DerivedDataCache/*
 
 *.pdb
+Plugins/MarchingCubesComputeShader/Binaries/*
+Plugins/MarchingCubesComputeShader/Intermediate/*
+Plugins/ShaderCopyHelper/Binaries/*
+Plugins/ShaderCopyHelper/Intermediate/*

@@ -1,20 +1,50 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
-#include "MarchingCubesComputeShader.h"
+#include "MarchingCubesComputeShaderPrivatePCH.h"
+#include "ShaderParameterUtils.h"
+#include "RHIStaticStates.h"
 
-#define LOCTEXT_NAMESPACE "FMarchingCubesComputeShaderModule"
+IMPLEMENT_UNIFORM_BUFFER_STRUCT(FMarchingCubesComputeShaderConstantParameters, TEXT("CSConstants"))
+IMPLEMENT_UNIFORM_BUFFER_STRUCT(FMarchingCubesComputeShaderVariableParameters, TEXT("CSVariables"))
 
-void FMarchingCubesComputeShaderModule::StartupModule()
+FMarchingCubesComputeShader::FMarchingCubesComputeShader(const ShaderMetaType::CompiledShaderInitializerType& initializer) : FGlobalShader(initializer)
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+	_meshData.Bind(initializer.ParameterMap, TEXT("MeshData"));
 }
 
-void FMarchingCubesComputeShaderModule::ShutdownModule()
+void FMarchingCubesComputeShader::ModifyCompilationEnvironment(EShaderPlatform platform, FShaderCompilerEnvironment& outEnvironment)
 {
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
+	FGlobalShader::ModifyCompilationEnvironment(platform, outEnvironment);
+	outEnvironment.CompilerFlags.Add(CFLAG_StandardOptimization);
 }
 
-#undef LOCTEXT_NAMESPACE
-	
-IMPLEMENT_MODULE(FMarchingCubesComputeShaderModule, MarchingCubesComputeShader)
+void FMarchingCubesComputeShader::SetMeshData(FRHICommandList& rhiCmdList, FUnorderedAccessViewRHIRef meshDataUAV)
+{
+	FComputeShaderRHIParamRef computeShaderRHI = GetComputeShader();
+
+	if (_meshData.IsBound())
+	{
+		rhiCmdList.SetUAVParameter(computeShaderRHI, _meshData.GetBaseIndex(), meshDataUAV);
+	}
+}
+
+void FMarchingCubesComputeShader::SetUniformBuffers(FRHICommandList& rhiCmdList, FMarchingCubesComputeShaderConstantParameters& constantParameters, FMarchingCubesComputeShaderVariableParameters& variableParameters)
+{
+	FMarchingCubesComputeShaderConstantParametersRef constantParametersBuffer = FMarchingCubesComputeShaderConstantParametersRef::CreateUniformBufferImmediate(constantParameters, UniformBuffer_SingleDraw);
+	FMarchingCubesComputeShaderVariableParametersRef variableParametersBuffer = FMarchingCubesComputeShaderVariableParametersRef::CreateUniformBufferImmediate(variableParameters, UniformBuffer_SingleDraw);
+
+	SetUniformBufferParameter(rhiCmdList, GetComputeShader(), GetUniformBufferParameter<FMarchingCubesComputeShaderConstantParameters>(), constantParametersBuffer);
+	SetUniformBufferParameter(rhiCmdList, GetComputeShader(), GetUniformBufferParameter<FMarchingCubesComputeShaderVariableParameters>(), variableParametersBuffer);
+}
+
+void FMarchingCubesComputeShader::UnbindBuffers(FRHICommandList& rhiCmdList)
+{
+	FComputeShaderRHIParamRef computeShaderRHI = GetComputeShader();
+
+	if (_meshData.IsBound())
+		rhiCmdList.SetUAVParameter(computeShaderRHI, _meshData.GetBaseIndex(), FUnorderedAccessViewRHIRef());
+}
+
+IMPLEMENT_SHADER_TYPE(, FMarchingCubesComputeShader, TEXT("MarchingCubesComputeShader"), TEXT("MarchingCubes"), SF_Compute);
+
+IMPLEMENT_MODULE(FDefaultModuleImpl, MarchingCubesComputeShader)
