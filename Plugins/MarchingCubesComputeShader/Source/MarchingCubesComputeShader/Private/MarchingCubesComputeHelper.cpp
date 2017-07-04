@@ -2,6 +2,8 @@
 
 #include "MarchingCubesComputeShaderPrivatePCH.h"
 
+#define NUM_TRIANGLES_COUNT 1
+
 UMarchingCubesComputeHelper::UMarchingCubesComputeHelper(const class FObjectInitializer& initializer)
 {
 	UObject* outer = GetOuter();
@@ -14,7 +16,16 @@ UMarchingCubesComputeHelper::UMarchingCubesComputeHelper(const class FObjectInit
 
 	_variableParameters = FMarchingCubesComputeShaderVariableParameters();
 
-	//FRHIResourceCreateInfo CreateInfo;
+	// Setup buffers
+	_meshData.Init(FTriangle(), 1);
+	TResourceArray<FTriangle> bufferData;
+	bufferData.Init(FTriangle(), NUM_TRIANGLES_COUNT);
+	bufferData.SetAllowCPUAccess(true);
+	FRHIResourceCreateInfo createInfo;
+	createInfo.ResourceArray = &bufferData;
+
+	_meshDataBuffer = RHICreateStructuredBuffer(sizeof(FTriangle), sizeof(FTriangle) * NUM_TRIANGLES_COUNT, BUF_UnorderedAccess | BUF_ShaderResource, createInfo);
+	_meshDataUAV = RHICreateUnorderedAccessView(_meshDataBuffer, true, false);
 }
 
 UMarchingCubesComputeHelper::~UMarchingCubesComputeHelper()
@@ -68,5 +79,24 @@ void UMarchingCubesComputeHelper::ExecuteShaderInternal()
 
 	computeShader->UnbindBuffers(rhiCmdList);
 
-	_isExecuting = false;
+	RetrieveDataInternal();
+}
+
+void UMarchingCubesComputeHelper::RetrieveDataInternal()
+{
+	check(IsInRenderingThread());
+
+	uint8* srcPtr = (uint8*)RHILockStructuredBuffer(_meshDataBuffer, 0, sizeof(FTriangle) * NUM_TRIANGLES_COUNT, EResourceLockMode::RLM_ReadOnly);
+	// Reference pointer to first element for our destination ComputedColors
+	uint8* dstPtr = (uint8*)_meshData.GetData();
+	// Copy from GPU to main memory
+	FMemory::Memcpy(dstPtr, srcPtr, sizeof(FTriangle) * NUM_TRIANGLES_COUNT);
+	//Unlock texture
+	RHIUnlockStructuredBuffer(_meshDataBuffer);
+
+	FGraphEventRef Task = FFunctionGraphTask::CreateAndDispatchWhenReady([&]()
+	{
+		_isExecuting = false;
+		OnShaderExecutionCompleted.Broadcast();
+	}, TStatId(), NULL, ENamedThreads::GameThread);
 }

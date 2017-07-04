@@ -4,6 +4,8 @@
 #include "MarchingCubesComputeShader.h"
 #include "MarchingCubesComputeHelper.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FShaderExecutionCompleted);
+
 USTRUCT(BlueprintType)
 struct FVertex
 {
@@ -42,12 +44,16 @@ public:
 		void ExecuteShader();
 
 	void ExecuteShaderInternal();
+	void RetrieveDataInternal();
 
 	UFUNCTION(BlueprintCallable)
-	TArray<FTriangle> GetMeshData()
+		TArray<FTriangle> GetMeshData()
 	{
-		return TArray<FTriangle>(_triangles);
+		return TArray<FTriangle>(_meshData);
 	}
+
+	UPROPERTY(BlueprintAssignable)
+		FShaderExecutionCompleted OnShaderExecutionCompleted;
 private:
 	bool _isExecuting = false;
 	bool _isUnloading = false;
@@ -56,6 +62,7 @@ private:
 	FMarchingCubesComputeShaderVariableParameters _variableParameters;
 	ERHIFeatureLevel::Type _featureLevel;
 
-	TArray<FTriangle> _triangles;
+	TArray<FTriangle> _meshData;
+	FStructuredBufferRHIRef _meshDataBuffer;
 	FUnorderedAccessViewRHIRef _meshDataUAV;
 };

@@ -21,7 +21,7 @@ struct Triangle
 	Vertex Vertex3;
 };
 
-AppendStructuredBuffer<Triangle> MeshData;
+RWStructuredBuffer<Triangle> MeshData;
 
 SamplerState myLinearClampSampler;
 
@@ -351,6 +351,30 @@ float3 CalculateGradient(float3 p)
 [numthreads(8, 8, 8)]
 void MarchingCubes(uint3 threadId : SV_DispatchThreadID)
 {
+	
+	Triangle t;
+
+	Vertex v0;
+	Vertex v1;
+	Vertex v2;
+
+	v0.Position = float3(1, 1, 1);
+	v1.Position = float3(2, 2, 2);
+	v2.Position = float3(3, 3, 3);
+
+	v0.Normal = float3(4, 4, 4);
+	v1.Normal = float3(5, 5, 5);
+	v2.Normal = float3(6, 6, 6);
+
+	t.Vertex1 = v0;
+	t.Vertex2 = v1;
+	t.Vertex3 = v2;
+
+	MeshData[0] = t;
+
+	//MeshData.Append(t);
+
+	/*
 	float3 offset = float3(-0.5, -0.5, -0.5);
 
 	float3 p[8] = {
@@ -433,7 +457,8 @@ void MarchingCubes(uint3 threadId : SV_DispatchThreadID)
 			t.Vertex2 = v1;
 			t.Vertex3 = v2;
 
-			MeshData.Append(t);
+			//MeshData.Append(t);
 		}
 	}
+	*/
 }
