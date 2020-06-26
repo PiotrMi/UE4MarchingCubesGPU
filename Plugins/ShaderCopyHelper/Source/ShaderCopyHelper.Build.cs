@@ -28,7 +28,7 @@ namespace UnrealBuildTool.Rules
 
     public class ShaderCopyHelper : ModuleRules
     {
-        public ShaderCopyHelper(TargetInfo Target)
+        public ShaderCopyHelper(ReadOnlyTargetRules Target) : base(Target)
         {
             PublicDependencyModuleNames.AddRange(new string[]
 				                                {

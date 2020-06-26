@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class MarchingCubesComputeShader :ModuleRules
 {
-    public MarchingCubesComputeShader( TargetInfo Target )
+    public MarchingCubesComputeShader(ReadOnlyTargetRules Target) : base(Target)
     {
 
         PublicIncludePaths.AddRange(
