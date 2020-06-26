@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class UE4MarchingCubesGPU : ModuleRules
 {
-	public UE4MarchingCubesGPU(TargetInfo Target)
+	public UE4MarchingCubesGPU(ReadOnlyTargetRules Target) : base (Target)
 	{
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
 	}

@@ -14,7 +14,7 @@
 	[
 		{
 			"Name" : "ShaderCopyHelper",
-			"Type" : "Developer",
+			"Type" : "DeveloperTool",
 			"LoadingPhase" : "PostConfigInit"
 		}
 	]

@@ -5,21 +5,16 @@ using System.Collections.Generic;
 
 public class UE4MarchingCubesGPUTarget : TargetRules
 {
-	public UE4MarchingCubesGPUTarget(TargetInfo Target)
+	public UE4MarchingCubesGPUTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
+
+		ExtraModuleNames.Add("UE4MarchingCubesGPU");
 	}
 
 	//
 	// TargetRules interface.
 	//
 
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.Add("UE4MarchingCubesGPU");
-	}
+
 }

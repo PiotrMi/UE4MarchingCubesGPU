@@ -5,21 +5,14 @@ using System.Collections.Generic;
 
 public class UE4MarchingCubesGPUEditorTarget : TargetRules
 {
-	public UE4MarchingCubesGPUEditorTarget(TargetInfo Target)
+	public UE4MarchingCubesGPUEditorTarget(TargetInfo Target) : base (Target)
 	{
 		Type = TargetType.Editor;
+
+		ExtraModuleNames.Add("UE4MarchingCubesGPU");
 	}
 
 	//
 	// TargetRules interface.
 	//
-
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.Add("UE4MarchingCubesGPU");
-	}
 }
